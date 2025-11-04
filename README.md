@@ -50,3 +50,24 @@
     - The criteria used to select questions.
     - How the Evidence Plan was generated.
     - Any patterns or observations noticed (e.g., "comparison questions work well...").
+
+## Processed Data
+
+- QA with parallel answering steps
+    - data/processed/fanout-parallel-small.json
+    - extracted from data/raw/fanout-dev.json
+    - small and manually picked data
+    - data structure
+        - copy and paste of the raw data
+- QA with mixed answering steps
+    - data/processed/fanout-mixed-small.json
+    - extracted from data/raw/fanout-dev.json
+    - small and manually picked data
+    - data structure
+        - copy and paste of the raw data
+- QA with sequential answering steps
+    - data/processed/fanout-sequential-small.json
+    - extracted from data/raw/fanout-dev.json
+    - small and manually picked data
+    - data structure
+        - copy and paste of the raw data
