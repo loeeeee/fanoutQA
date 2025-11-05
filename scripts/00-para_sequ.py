@@ -9,18 +9,14 @@ from enum import Enum
 from typing import ClassVar, Self, TypeAlias, TypedDict, no_type_check
 import json
 import logging
+import urllib.parse
 
 logging.basicConfig(
+    filename="data/runtime.log",
     level=logging.INFO,
     format='[%(levelname)s] %(asctime)s: %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-
-class Categories(Enum):
-    sports = 0
-    statistics = 1
-
 
 ID: TypeAlias = str
 
@@ -31,9 +27,11 @@ class Evidence:
     rev_id: int
     title: str
 
+    safe_chars: ClassVar[str] = "/():,-#"
+
     @property
     def url(self) -> str:
-        return f"https://en.wikipedia.org/wiki/{self.title.replace(" ","_")}"
+        return f"https://en.wikipedia.org/wiki/{urllib.parse.quote(self.title.replace(' ','_'), safe=self.safe_chars)}"
 
     @classmethod
     @no_type_check
@@ -45,8 +43,7 @@ class Evidence:
                 title = raw_json.get("title")
             )
             if result.url != raw_json.get("url"):
-                logger.error(f"URL is not correctly parsed, {result.url}, {raw_json.get("url")}")
-                raise
+                logger.debug(f"URL is not correctly parsed, {result.url}, {raw_json.get("url")}")
         except KeyError:
             logger.error(f"Incorrect format for {raw_json}")
             raise
@@ -62,7 +59,7 @@ class Entry:
     depends_on: list[ID]
     evidence: Evidence|None = field(default=None)
     decomposition: list[Self] = field(default_factory=list)
-    categories: list[Categories] = field(default_factory=list)
+    categories: list[str] = field(default_factory=list)
 
     # Class variables
     categories_all: ClassVar[set[str]] = set()
@@ -82,17 +79,21 @@ class Entry:
             raise
 
         try:
-            decomposition = raw_json.get("raw_composition")
+            decomposition = raw_json.get("decomposition")
         except KeyError:
-            logger.debug(f"Find answer composition {len(decomposition)}")
+            logger.debug(f"Cannot find answer decomposition")
+        else:
+            if decomposition:
+                result.decomposition = [cls.from_json(entry) for entry in decomposition]
 
         try:
             categories: list[str] = raw_json.get("categories")
         except KeyError:
             logger.debug(f"No category information included.")
         else:
-            if categories not in Categories:
+            if categories:
                 cls.categories_all.update(categories)
+                result.categories.extend(categories)
 
         try:
             evidence = Evidence.from_json(raw_json.get("evidence"))
@@ -103,6 +104,15 @@ class Entry:
 
         return result
 
+    def __repr__(self) -> str:
+        """
+        recursively create indented string
+        """
+        last_level: str = ""
+        for level in self.decomposition:
+            last_level += f"{'\n    '.join(str(level).split('\n'))}"
+        this_level: str = f"\n- {self.question}{last_level}"
+        return this_level
 
 
 def main() -> None:
@@ -112,9 +122,15 @@ def main() -> None:
         for entry in raw:
             entries.append(Entry.from_json(entry))
 
+    logger.info(f"Total entry based on JSON: {len(raw)}")
     logger.info(f"Total entry: {len(entries)}")
-    logger.info(f"All categories: \n{"\n".join([f"    {category} = {i}"\
-        for i, category in enumerate(Entry.categories_all)])}")
+
+    for entry in entries:
+        logger.info(f"Simple visualization: {entry}")
+
+
+    # logger.info(f"All categories: \n{"\n".join([f"{category}"\
+    #     for i, category in enumerate(Entry.categories_all)])}")
 
 if __name__ == "__main__":
     main()
