@@ -9,6 +9,7 @@ from typing import ClassVar, Self, TypeAlias, no_type_check
 import json
 import logging
 import urllib.parse
+from functools import cached_property
 
 logging.basicConfig(
     filename="data/runtime.log",
@@ -113,6 +114,25 @@ class Entry:
         this_level: str = f"\n- {self.question}{last_level}"
         return this_level
 
+    @cached_property
+    def hop(self) -> int:
+        """
+        return number of hop to get to the answer
+        """
+        hop: int = 1
+        if not self.decomposition:
+            """
+            recursion ends: no more decomposition -> answer reached
+            """
+            return hop
+
+        """
+        recursion: find the deepest
+        """
+        child_hops: list[int] = [_.hop for _ in self.decomposition]
+        hop += max(*child_hops) if len(child_hops) > 1 else child_hops[0]
+        return hop
+
 
 def main() -> None:
     entries: list[Entry] = []
@@ -124,8 +144,18 @@ def main() -> None:
     logger.info(f"Total entry based on JSON: {len(raw)}")
     logger.info(f"Total entry: {len(entries)}")
 
+    entries_by_hop: dict[int, list[Entry]] = {}
     for entry in entries:
-        logger.info(f"Simple visualization: {entry}")
+        if not entry.hop in entries_by_hop:
+            entries_by_hop[entry.hop] = [entry]
+        else:
+            entries_by_hop[entry.hop].append(entry)
+
+    for hop, entries_same_hop in entries_by_hop.items():
+        logger.info(f"Now visualizing entries with hop {hop}")
+        logger.info(f"{len(entries_same_hop)} entries in total")
+        for entry in entries_same_hop:
+            logger.debug(f"Simple visualization: {entry}")
 
 
     # logger.info(f"All categories: \n{"\n".join([f"{category}"\
