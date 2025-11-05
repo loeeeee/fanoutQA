@@ -5,8 +5,7 @@
 # Sequential means that to answer the questions, one ask another question, and follow the logic of that questions...
 
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import ClassVar, Self, TypeAlias, TypedDict, no_type_check
+from typing import ClassVar, Self, TypeAlias, no_type_check
 import json
 import logging
 import urllib.parse
