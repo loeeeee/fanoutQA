@@ -57,6 +57,19 @@ The dataset has several distinct fan out mode.
 
 ### 1 Hop
 
+Examples:
+
+- What are the heights in meters of Mount Everest, K2, Kangchenjunga, Lhotse, and Makalu?
+    - What is the height of Mount Everest?
+    - What is the height of K2?
+    - What is the height of Kangchenjunga?
+    - What is the height of Lhotse?
+    - What is the height of Makalu?
+
+10 entries in total. (Not including 2 invalid entry, 2c472f015b5e38fd, a19574bcd377eda6)
+
+### 2 Hop
+
 - Query question
     - Revised question
         - Breakdown question 0
@@ -74,9 +87,9 @@ Example:
         - What is the batting hand of Jeff Austin?
         - What is the batting hand of JD Drew?
 
-This is the majority of the questions in the dataset.
+273 entries in total.
 
-### 2 Hop (deep)
+### 3 Hop
 
 - Query question
     - Revised question
@@ -103,90 +116,27 @@ Example:
     - What law school did Neil Gorsuch attend?
         - Where did Neil Gorsuch study law?
 
-Only a few of the questions in the dataset structured like this.
+1 entry in total.
 
-### 2 Hop (wide)
-
-- Query question
-    - Revised question
-    - Deep-dive question
-        - Breakdown question 0
-        - Breakdown question 1
-        - Breakdown question 2
-        - Breakdown question 3
-        - ...
-
-Example:
-
-- What is Google's online video platform and how old are its founders?
-    - What is Google's online video platform?
-    - Who are the founders of YouTube?
-        - Who are the founders of YouTube?
-        - How old is Steve Chen?
-        - How old is Chad Hurley?
-        - How old is Jawed Karim?
-
-Only a few of the questions in the dataset structured like this.
-
-### 3 Hop
+### 4 Hop
 
 Examples:
 
 - Which currently sitting US Supreme Court Justices graduated from a top 14 law school?
     - Who are the current sitting US Supreme Court Judges?
-    - What are the T14 law schools and which of the supreme court justices attended them?
-        - What are the T14 law schools?
-            - Did John Roberts graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
-            - Did Thomas Clarence graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
-            - Did Samuel Alito graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
-            - Did Sonia Sotomayor graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
-            - Did Elena Kagan graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
-            - Did Neil Gorsuch graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
-            - Did Brett Kavanaugh graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
-            - Did Amy Coney Barrett graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
-            - Did Ketanji Brown Jackson graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
+        - What are the T14 law schools and which of the supreme court justices attended them?
+            - What are the T14 law schools?
+                - Did John Roberts graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
+                - Did Thomas Clarence graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
+                - Did Samuel Alito graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
+                - Did Sonia Sotomayor graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
+                - Did Elena Kagan graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
+                - Did Neil Gorsuch graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
+                - Did Brett Kavanaugh graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
+                - Did Amy Coney Barrett graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
+                - Did Ketanji Brown Jackson graduate from law school at one of the following universities: Columbia, Cornell, Duke, Georgetown, Harvard, New York University, Northwestern, Stanford, University of California at Berkeley, University of Chicago, University of Michigan, University of Pennslyvania, University of Virginia or Yale?
 
-### 4 Hop
-
-- Query question
-    - Revised question
-    - Deep-dive question
-        - Breakdown question 0
-            - Deep-dive question
-            - Deeper-dive question
-        - Breakdown question 1
-            - Deep-dive question
-            - Deeper-dive question
-        - Breakdown question 2
-            - Deep-dive question
-            - Deeper-dive question
-        - Breakdown question 3
-            - Deep-dive question
-            - Deeper-dive question
-        - ...
-
-Example:
-
-- Which heads of state of the founding countries of the European Union are older than 80 years old?
-    - What countries founded the European Union?
-    - Who is the head of state of Belgium and how old are they?
-        - Who is the head of state of Belgium?
-        - How old is King Philippe?
-    - Who is the head of state of France and how old are they?
-        - Who is the head of state of France?
-        - How old is Emmanuel Macron?
-    - Who is the head of state of Germany and how old are they?
-        - Who is the head of state of Greece?
-        - How old is Frank-Walter Steinmeier?
-    - Who is the head of state of Italy and a how old are they?
-        - Who is the head of state of Italy?
-        - How old is Sergio Mattarella?
-    - Who is the head of state of Luxembourg and how old are they?
-        - Who is the head of state of Luxembourg?
-        - How old is Grand Duke Henri?
-    - Who is the head of state of Netherlands and how old are they?
-        - Who is the head of state of the Netherlands?
-        - How old is King Willem-Alexander?
+23 entries in total.
 
 ### 5 Hop
 
@@ -194,17 +144,29 @@ Example:
 
 - Which actors played Spider-man in the latest live-action Spider-man movie, and who directed their respective Spider-man movies?
     - What is the latest live-action Spider-man movie?
+        - Who directed Tom Holland's, Tobey Maguire's and Andrew Garfield's respective Spider-man movies?
+            - Who directed Tom Holland's Spider-man movies?
+                - What is the title of Tom Holland's last Spider-man movie?
+                    - Who was the director of Spider-Man: No Way Home (2021)?
+            - Who directed Tobey Maguire's Spider-man movies?
+                - What is the title of Tobey Magquire's last Spider-man movie?
+                    - Who was the director of Spider-Man 3 (2007)?
+            - Who directed Andrew Garfield's Spider-man movies?
+                - What is the title of Andrew Garfield's last Spider-man movie?
+                    - Who was the director of The Amazing Spider-Man 2 (2014)?
     - Which actors played Spider-man in 'Spider-Man: No Way Home (2021)'?
-    - Who directed Tom Holland's, Tobey Maguire's and Andrew Garfield's respective Spider-man movies?
-        - Who directed Tom Holland's Spider-man movies?
-            - What is the title of Tom Holland's last Spider-man movie?
-            - Who was the director of Spider-Man: No Way Home (2021)?
-        - Who directed Tobey Maguire's Spider-man movies?
-            - What is the title of Tobey Magquire's last Spider-man movie?
-            - Who was the director of Spider-Man 3 (2007)?
-        - Who directed Andrew Garfield's Spider-man movies?
-            - What is the title of Andrew Garfield's last Spider-man movie?
-            - Who was the director of The Amazing Spider-Man 2 (2014)?
+        - Who directed Tom Holland's, Tobey Maguire's and Andrew Garfield's respective Spider-man movies?
+            - Who directed Tom Holland's Spider-man movies?
+                - What is the title of Tom Holland's last Spider-man movie?
+                    - Who was the director of Spider-Man: No Way Home (2021)?
+            - Who directed Tobey Maguire's Spider-man movies?
+                - What is the title of Tobey Magquire's last Spider-man movie?
+                    - Who was the director of Spider-Man 3 (2007)?
+            - Who directed Andrew Garfield's Spider-man movies?
+                - What is the title of Andrew Garfield's last Spider-man movie?
+                    - Who was the director of The Amazing Spider-Man 2 (2014)?
+
+1 entry in total.
 
 ## Processed Data
 
