@@ -5,7 +5,7 @@
 # Sequential means that to answer the questions, one ask another question, and follow the logic of that questions...
 
 from dataclasses import dataclass, field
-from typing import ClassVar, Self, TypeAlias, no_type_check
+from typing import ClassVar, Dict, List, Self, TypeAlias, no_type_check
 import json
 import logging
 import urllib.parse
@@ -67,6 +67,7 @@ class Entry:
     @classmethod
     @no_type_check
     def from_json(cls, raw_json: dict) -> Self:
+        # Basic info
         try:
             result: Self = cls(
                 _id = raw_json.get("id"),
@@ -78,14 +79,35 @@ class Entry:
             logger.error(f"Incorrect format for {raw_json}")
             raise
 
+        # Entry hierarchy
         try:
             decomposition = raw_json.get("decomposition")
         except KeyError:
             logger.debug(f"Cannot find answer decomposition")
         else:
             if decomposition:
-                result.decomposition = [cls.from_json(entry) for entry in decomposition]
+                # Create all entries
+                child_entries: Dict[ID, Entry] = {ent._id: ent \
+                    for ent in [cls.from_json(entry) for entry in decomposition]}
+                child_entries_inferred: Dict[ID, Entry] = {}
 
+                # Build hierarchy based on dependency
+                for _id, entry in child_entries.items():
+                    # Assume a single path dependency
+                    if len(entry.depends_on) == 1:
+                        parent_id = entry.depends_on[0]
+                        # Move it to the new place
+                        child_entries_inferred[parent_id].decomposition.append(entry)
+                    elif len(entry.depends_on) > 1:
+                        # Only log, do nothing else
+                        logger.warning(f"Multi-path dependency detected, {result.question}")
+                        for parent_id in entry.depends_on:
+                            logger.warning(f"It depends on {child_entries[parent_id].question}")
+                    else:
+                        # Do nothing when all are parallel
+                        pass
+
+        # Additional info
         try:
             categories: list[str] = raw_json.get("categories")
         except KeyError:
@@ -95,6 +117,7 @@ class Entry:
                 cls.categories_all.update(categories)
                 result.categories.extend(categories)
 
+        # Source
         try:
             evidence = Evidence.from_json(raw_json.get("evidence"))
         except (AttributeError, KeyError):
@@ -115,7 +138,7 @@ class Entry:
         return this_level
 
     @cached_property
-    def hop(self) -> int:
+    def hop_simple(self) -> int:
         """
         return number of hop to get to the answer
         """
@@ -127,11 +150,40 @@ class Entry:
             return hop
 
         """
-        recursion: find the deepest
+        recursion: find the deepest, we assume all entry in decomposition is at the same level
         """
-        child_hops: list[int] = [_.hop for _ in self.decomposition]
+        child_hops: list[int] = [_.hop_simple for _ in self.decomposition]
         hop += max(*child_hops) if len(child_hops) > 1 else child_hops[0]
         return hop
+
+    @cached_property
+    def hop_inferred(self) -> int:
+        """
+        return number of hop to get to the answer
+        """
+        hop: int = 1
+        if self.depends_on:
+            """
+            Assume entry only has one path of dependency
+            """
+            hop += 1
+
+            if len(self.depends_on) > 1:
+                logger.warning(f"Encounter multi-path dependency, {self}")
+
+        if not self.decomposition:
+            """
+            recursion ends: no more decomposition -> answer reached
+            """
+            return hop
+
+        """
+        recursion: find the deepest, we infer the dependency in decomposition
+        """
+        child_hops: list[int] = [_.hop_inferred for _ in self.decomposition]
+        hop += max(*child_hops) if len(child_hops) > 1 else child_hops[0]
+        return hop
+
 
 
 def main() -> None:
@@ -146,16 +198,16 @@ def main() -> None:
 
     entries_by_hop: dict[int, list[Entry]] = {}
     for entry in entries:
-        if not entry.hop in entries_by_hop:
-            entries_by_hop[entry.hop] = [entry]
+        if not entry.hop_simple in entries_by_hop:
+            entries_by_hop[entry.hop_simple] = [entry]
         else:
-            entries_by_hop[entry.hop].append(entry)
+            entries_by_hop[entry.hop_simple].append(entry)
 
     for hop, entries_same_hop in entries_by_hop.items():
         logger.info(f"Now visualizing entries with hop {hop}")
         logger.info(f"{len(entries_same_hop)} entries in total")
         for entry in entries_same_hop:
-            logger.debug(f"Simple visualization: {entry}")
+            logger.info(f"Simple visualization: {entry}")
 
 
     # logger.info(f"All categories: \n{"\n".join([f"{category}"\
