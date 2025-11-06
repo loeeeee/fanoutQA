@@ -5,7 +5,7 @@
 # Sequential means that to answer the questions, one ask another question, and follow the logic of that questions...
 
 from dataclasses import dataclass, field
-from typing import ClassVar, Dict, List, Self, TypeAlias, no_type_check
+from typing import ClassVar, Dict, List, Self, Set, TypeAlias, no_type_check
 import json
 import logging
 import urllib.parse
@@ -86,26 +86,38 @@ class Entry:
             logger.debug(f"Cannot find answer decomposition")
         else:
             if decomposition:
-                # Create all entries
-                child_entries: Dict[ID, Entry] = {ent._id: ent \
+                # Create all entries, child here is relative to "result"
+                child_entries_yellow_page: Dict[ID, Entry] = {ent._id: ent \
                     for ent in [cls.from_json(entry) for entry in decomposition]}
-                child_entries_inferred: Dict[ID, Entry] = {}
+                dependency: Set[Tuple[ID, ID]] = set()
 
-                # Build hierarchy based on dependency
-                for _id, entry in child_entries.items():
-                    # Assume a single path dependency
-                    if len(entry.depends_on) == 1:
-                        parent_id = entry.depends_on[0]
-                        # Move it to the new place
-                        child_entries_inferred[parent_id].decomposition.append(entry)
-                    elif len(entry.depends_on) > 1:
+                # Infer hierarchy based on depends_on
+                for _id, entry in child_entries_yellow_page.items():
+                    for parent_id in entry.depends_on:
+                        # Note the dependency
+                        dependency.add((parent_id, _id))
+
+                    # Logging
+                    if len(entry.depends_on) > 1:
                         # Only log, do nothing else
                         logger.warning(f"Multi-path dependency detected, {result.question}")
                         for parent_id in entry.depends_on:
-                            logger.warning(f"It depends on {child_entries[parent_id].question}")
-                    else:
-                        # Do nothing when all are parallel
-                        pass
+                            logger.warning(f"It depends on {child_entries_yellow_page[parent_id].question}")
+
+                logger.debug(f"Find {len(dependency)} dependency paths in total")
+                # Build hierarchy based on dependency, utilizing Python's reference system
+                child_entries_yellow_page_backup = child_entries_yellow_page.copy()
+                for parent_id, child_id in dependency:
+                    child_entries_yellow_page[parent_id].decomposition.append(
+                        child_entries_yellow_page_backup[child_id]
+                    )
+                    # NAZI
+                    try:
+                        del child_entries_yellow_page[child_id]
+                    except KeyError:
+                        logger.warning(f"Multi-path dependency")
+
+                result.decomposition.extend(child_entries_yellow_page.values())
 
         # Additional info
         try:
@@ -138,7 +150,7 @@ class Entry:
         return this_level
 
     @cached_property
-    def hop_simple(self) -> int:
+    def hop(self) -> int:
         """
         return number of hop to get to the answer
         """
@@ -152,38 +164,9 @@ class Entry:
         """
         recursion: find the deepest, we assume all entry in decomposition is at the same level
         """
-        child_hops: list[int] = [_.hop_simple for _ in self.decomposition]
+        child_hops: list[int] = [_.hop for _ in self.decomposition]
         hop += max(*child_hops) if len(child_hops) > 1 else child_hops[0]
         return hop
-
-    @cached_property
-    def hop_inferred(self) -> int:
-        """
-        return number of hop to get to the answer
-        """
-        hop: int = 1
-        if self.depends_on:
-            """
-            Assume entry only has one path of dependency
-            """
-            hop += 1
-
-            if len(self.depends_on) > 1:
-                logger.warning(f"Encounter multi-path dependency, {self}")
-
-        if not self.decomposition:
-            """
-            recursion ends: no more decomposition -> answer reached
-            """
-            return hop
-
-        """
-        recursion: find the deepest, we infer the dependency in decomposition
-        """
-        child_hops: list[int] = [_.hop_inferred for _ in self.decomposition]
-        hop += max(*child_hops) if len(child_hops) > 1 else child_hops[0]
-        return hop
-
 
 
 def main() -> None:
@@ -198,10 +181,10 @@ def main() -> None:
 
     entries_by_hop: dict[int, list[Entry]] = {}
     for entry in entries:
-        if not entry.hop_simple in entries_by_hop:
-            entries_by_hop[entry.hop_simple] = [entry]
+        if not entry.hop in entries_by_hop:
+            entries_by_hop[entry.hop] = [entry]
         else:
-            entries_by_hop[entry.hop_simple].append(entry)
+            entries_by_hop[entry.hop].append(entry)
 
     for hop, entries_same_hop in entries_by_hop.items():
         logger.info(f"Now visualizing entries with hop {hop}")
