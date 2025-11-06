@@ -154,7 +154,7 @@ class Entry:
         """
         return number of hop to get to the answer
         """
-        hop: int = 1
+        hop: int = 0
         if not self.decomposition:
             """
             recursion ends: no more decomposition -> answer reached
@@ -164,7 +164,7 @@ class Entry:
         """
         recursion: find the deepest, we assume all entry in decomposition is at the same level
         """
-        child_hops: list[int] = [_.hop for _ in self.decomposition]
+        child_hops: list[int] = [(_.hop + 1) for _ in self.decomposition]
         hop += max(*child_hops) if len(child_hops) > 1 else child_hops[0]
         return hop
 
